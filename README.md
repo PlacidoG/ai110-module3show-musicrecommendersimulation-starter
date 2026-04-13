@@ -11,23 +11,49 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project simulates a music recommendation system using a transparent weighted scoring approach. Each song is compared to a user taste profile and receives a total score based on genre match, mood match, energy closeness to the user target, and acoustic preference alignment. Genre is weighted more heavily than mood so core taste signals have stronger influence. After scoring all songs, the system ranks them from highest to lowest and returns the top recommendations with a per-song score breakdown, making it easy to understand
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+This section documents the full recommendation plan in one place.
 
-Some prompts to answer:
+Input (User Preferences):
+- favorite_genre
+- favorite_mood
+- target_energy
+- likes_acoustic
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Process (Score Every Song in the CSV):
+- Load songs from data/songs.csv.
+- Loop through songs one by one.
+- For each song, compute weighted score components and a total score.
+- Save (song, total_score, explanation) into a scored list.
 
-You can include a simple diagram or bullet list if helpful.
+Output (Ranked Top K Recommendations):
+- Sort the scored list from highest to lowest total score.
+- Return the top k songs with score breakdowns.
+
+### Algorithm Recipe (Final)
+
+For each song:
+- Genre match: +4.0 points if song genre exactly matches favorite_genre, else +0.0
+- Mood match: +2.0 points if song mood exactly matches favorite_mood, else +0.0
+- Energy similarity: +3.0 x max(0, 1 - abs(song_energy - target_energy))
+- Acoustic alignment:
+   - if likes_acoustic is True: +1.0 x acousticness
+   - if likes_acoustic is False: +1.0 x (1 - acousticness)
+
+Total score formula:
+- total_score = genre_points + mood_points + energy_points + acoustic_points
+- score range is 0.0 to 10.0
+
+### Potential Biases
+
+- This system might over-prioritize genre because genre has the highest weight.
+- Exact-match checks for genre and mood can ignore near matches (for example, indie pop vs pop).
+- A small catalog can amplify dataset imbalance, so some styles may be under-recommended.
 
 ---
 
